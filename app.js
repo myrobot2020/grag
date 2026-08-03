@@ -40,17 +40,23 @@ let questions = [
     // Stage 1
     { id: 101, stage: 1, text: "How many flowers are in the database?", answerable: "yes", mode: "SELECT COUNT(*) FROM iris" },
     { id: 102, stage: 1, text: "What is the species of the flower with id 5?", answerable: "yes", mode: "SELECT species FROM iris WHERE id=5" },
-    { id: 103, stage: 1, text: "What is the petal width of flower id 12?", answerable: "yes", mode: "SELECT petal_width FROM iris WHERE id=12" },
+    { id: 103, stage: 1, text: "What is the leaf type of flower id 12?", answerable: "no", mode: "UNANSWERABLE (Missing column 'leaf_type')" },
+    { id: 104, stage: 1, text: "Show the average petal density of all rows.", answerable: "no", mode: "UNANSWERABLE (Missing column 'petal_density')" },
     // Stage 2
     { id: 201, stage: 2, text: "What is the species of flower id 15, and what is its sepal length?", answerable: "yes", mode: "SELECT species, sepal_length FROM iris WHERE id=15" },
     { id: 202, stage: 2, text: "Find the flower with id 22, and what is the difference between its sepal length and sepal width?", answerable: "yes", mode: "SELECT sepal_length - sepal_width FROM iris WHERE id=22" },
+    { id: 203, stage: 2, text: "What is the growth rate of flower id 25 and its color?", answerable: "no", mode: "UNANSWERABLE (Missing columns 'growth_rate', 'color')" },
+    { id: 204, stage: 2, text: "For the flower with id 30, retrieve its smell intensity and matching species.", answerable: "no", mode: "UNANSWERABLE (Missing column 'smell_intensity')" },
     // Stage 3
     { id: 301, stage: 3, text: "What is the average sepal width of the species setosa?", answerable: "yes", mode: "SELECT AVG(sepal_width) FROM iris WHERE species='setosa'" },
     { id: 302, stage: 3, text: "What is the maximum petal length for the species virginica?", answerable: "yes", mode: "SELECT MAX(petal_length) FROM iris WHERE species='virginica'" },
-    // Stage 4 (50% unanswerable)
-    { id: 401, stage: 4, text: "What is the price or market value of the setosa flower?", answerable: "no", mode: "UNANSWERABLE (Missing column 'price')" },
-    { id: 402, stage: 4, text: "List the soil acidity requirements for the virginica species.", answerable: "no", mode: "UNANSWERABLE (Missing column 'soil_acidity')" },
-    { id: 403, stage: 4, text: "Show the customer transaction history for petal width 0.2.", answerable: "no", mode: "UNANSWERABLE (Soil or transactions are non-existent)" }
+    { id: 303, stage: 3, text: "Show the average height of iris-setosa grouped by geographic location.", answerable: "no", mode: "UNANSWERABLE (Missing columns 'height', 'geographic_location')" },
+    { id: 304, stage: 3, text: "What is the maximum flower price grouped by country of origin?", answerable: "no", mode: "UNANSWERABLE (Missing columns 'price', 'country_of_origin')" },
+    // Stage 4
+    { id: 401, stage: 4, text: "What is the average petal length of flowers where petal width is greater than 1.5?", answerable: "yes", mode: "SELECT AVG(petal_length) FROM iris WHERE petal_width > 1.5" },
+    { id: 402, stage: 4, text: "How many flowers have a sepal length greater than 7.0 and a petal length less than 6.0?", answerable: "yes", mode: "SELECT COUNT(*) FROM iris WHERE sepal_length > 7.0 AND petal_length < 6.0" },
+    { id: 403, stage: 4, text: "Find the classification model accuracy metrics for this dataset.", answerable: "no", mode: "UNANSWERABLE (Non-existent metrics)" },
+    { id: 404, stage: 4, text: "What is the soil nitrogen level of virginica species where petal width is 0.2?", answerable: "no", mode: "UNANSWERABLE (Missing column 'soil_nitrogen')" }
 ];
 
 // Historical Reports Mock data

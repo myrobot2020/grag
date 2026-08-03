@@ -118,13 +118,14 @@ def generate_questions(cursor, mutate, tbl, id_col, sl_col, sw_col, pl_col, pw_c
     q1_2 = f"What is the species of the flower with {id_col} 5?"
     a1_2 = get_val(f"SELECT {sp_col} FROM {tbl} WHERE {id_col} = 5")
     
-    q1_3 = f"What is the petal width of flower {id_col} 12?"
-    a1_3 = get_val(f"SELECT {pw_col} FROM {tbl} WHERE {id_col} = 12")
+    q1_3 = f"What is the leaf type of flower {id_col} 12?"
+    q1_4 = f"Show the average petal density of all rows."
     
     qa_list.extend([
         {"id": 101, "stage": 1, "text": q1_1, "answerable": "yes", "answer": a1_1},
         {"id": 102, "stage": 1, "text": q1_2, "answerable": "yes", "answer": a1_2},
-        {"id": 103, "stage": 1, "text": q1_3, "answerable": "yes", "answer": a1_3}
+        {"id": 103, "stage": 1, "text": q1_3, "answerable": "no", "answer": "UNANSWERABLE"},
+        {"id": 104, "stage": 1, "text": q1_4, "answerable": "no", "answer": "UNANSWERABLE"}
     ])
     
     # --- Stage 2: Compound Contextual Queries ---
@@ -138,30 +139,50 @@ def generate_questions(cursor, mutate, tbl, id_col, sl_col, sw_col, pl_col, pw_c
     sw_22 = float(get_val(f"SELECT {sw_col} FROM {tbl} WHERE {id_col} = 22"))
     a2_2 = f"{round(sl_22 - sw_22, 2)}"
     
+    q2_3 = f"What is the growth rate of flower {id_col} 25 and its color?"
+    q2_4 = f"For the flower with {id_col} 30, retrieve its smell intensity and matching species."
+    
     qa_list.extend([
         {"id": 201, "stage": 2, "text": q2_1, "answerable": "yes", "answer": a2_1},
-        {"id": 202, "stage": 2, "text": q2_2, "answerable": "yes", "answer": a2_2}
+        {"id": 202, "stage": 2, "text": q2_2, "answerable": "yes", "answer": a2_2},
+        {"id": 203, "stage": 2, "text": q2_3, "answerable": "no", "answer": "UNANSWERABLE"},
+        {"id": 204, "stage": 2, "text": q2_4, "answerable": "no", "answer": "UNANSWERABLE"}
     ])
     
     # --- Stage 3: Complex Multi-Join & Grouping queries ---
     q3_1 = f"What is the average sepal width of the species setosa?"
     a3_1 = get_val(f"SELECT AVG({sw_col}) FROM {tbl} WHERE {sp_col} = 'setosa'")
-    # Format to 2 decimal places for comparison tolerance
     a3_1 = f"{round(float(a3_1), 2)}"
     
     q3_2 = f"What is the maximum petal length for the species virginica?"
     a3_2 = get_val(f"SELECT MAX({pl_col}) FROM {tbl} WHERE {sp_col} = 'virginica'")
     
+    q3_3 = f"Show the average height of iris-setosa grouped by geographic location."
+    q3_4 = f"What is the maximum flower price grouped by country of origin?"
+    
     qa_list.extend([
         {"id": 301, "stage": 3, "text": q3_1, "answerable": "yes", "answer": a3_1},
-        {"id": 302, "stage": 3, "text": q3_2, "answerable": "yes", "answer": a3_2}
+        {"id": 302, "stage": 3, "text": q3_2, "answerable": "yes", "answer": a3_2},
+        {"id": 303, "stage": 3, "text": q3_3, "answerable": "no", "answer": "UNANSWERABLE"},
+        {"id": 304, "stage": 3, "text": q3_4, "answerable": "no", "answer": "UNANSWERABLE"}
     ])
     
-    # --- Stage 4: Ambiguous & Trick Questions ---
+    # --- Stage 4: Advanced Filters & Boundary Checks ---
+    q4_1 = f"What is the average petal length of flowers where petal width is greater than 1.5?"
+    a4_1 = get_val(f"SELECT AVG({pl_col}) FROM {tbl} WHERE {pw_col} > 1.5")
+    a4_1 = f"{round(float(a4_1), 2)}"
+    
+    q4_2 = f"How many flowers have a sepal length greater than 7.0 and a petal length less than 6.0?"
+    a4_2 = get_val(f"SELECT COUNT(*) FROM {tbl} WHERE {sl_col} > 7.0 AND {pl_col} < 6.0")
+    
+    q4_3 = f"Find the classification model accuracy metrics for this dataset."
+    q4_4 = f"What is the soil nitrogen level of virginica species where petal width is 0.2?"
+    
     qa_list.extend([
-        {"id": 401, "stage": 4, "text": f"What is the price or market value of the setosa flower?", "answerable": "no", "answer": "UNANSWERABLE"},
-        {"id": 402, "stage": 4, "text": f"List the soil acidity requirements for the virginica species.", "answerable": "no", "answer": "UNANSWERABLE"},
-        {"id": 403, "stage": 4, "text": f"Show the customer transaction history for petal width 0.2.", "answerable": "no", "answer": "UNANSWERABLE"}
+        {"id": 401, "stage": 4, "text": q4_1, "answerable": "yes", "answer": a4_1},
+        {"id": 402, "stage": 4, "text": q4_2, "answerable": "yes", "answer": a4_2},
+        {"id": 403, "stage": 4, "text": q4_3, "answerable": "no", "answer": "UNANSWERABLE"},
+        {"id": 404, "stage": 4, "text": q4_4, "answerable": "no", "answer": "UNANSWERABLE"}
     ])
     
     # Save file
