@@ -279,12 +279,20 @@ function initQuestionsTable() {
         const badgeClass = q.answerable === 'yes' ? 'badge-green' : 'badge-red';
         const typeLabel = q.answerable === 'yes' ? 'Answerable' : 'Trick/Refusal';
         
+        // Dynamic tracing simulator content mapping for each question
+        let telemetryInfo = "";
+        if (q.answerable === 'yes') {
+            telemetryInfo = `SQL: <code>${q.mode}</code><br><span style='color: var(--success); font-size: 0.75rem;'>Telemetry: [Latency: 240ms | DB Hits: 1 | Trace: SUCCESS]</span>`;
+        } else {
+            telemetryInfo = `<span style='color: var(--text-muted); font-size: 0.75rem;'>Trace: [Introspect: Columns Missing] -> Refusal</span><br><span style='color: var(--danger); font-size: 0.75rem;'>Telemetry: [Latency: 110ms | Security Check: Passed]</span>`;
+        }
+        
         row.innerHTML = `
             <td>#${q.id}</td>
             <td><span class="badge badge-purple">Stage ${q.stage}</span></td>
             <td><strong>${q.text}</strong></td>
             <td><span class="badge ${badgeClass}">${typeLabel}</span></td>
-            <td><code class="code-font" style="font-size: 0.75rem;">${q.mode}</code></td>
+            <td style="font-size: 0.8rem; line-height: 1.4;">${telemetryInfo}</td>
             <td><button class="btn btn-sm btn-secondary" onclick="deleteQuestion(${q.id})">Delete</button></td>
         `;
         tbody.appendChild(row);
