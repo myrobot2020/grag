@@ -17,69 +17,40 @@ let simInterval = null;
 let currentQuestionIndex = 0;
 let evalAttempts = 0;
 
-// Active Database Schema Definition (dynamic)
+// Active Database Schema Definition (dynamic Iris dataset)
 let activeSchema = {
-    domain: 'Finance (Retail Banking)',
+    domain: 'Iris Flower Biology Dataset',
     tables: [
         {
-            name: 'customers',
+            name: 'iris',
             columns: [
-                { name: 'customer_id', type: 'INTEGER', key: 'PK' },
-                { name: 'first_name', type: 'TEXT' },
-                { name: 'last_name', type: 'TEXT' },
-                { name: 'email', type: 'TEXT' },
-                { name: 'registration_date', type: 'INTEGER (timestamp)' }
-            ]
-        },
-        {
-            name: 'accounts',
-            columns: [
-                { name: 'account_id', type: 'INTEGER', key: 'PK' },
-                { name: 'customer_id', type: 'INTEGER', key: 'FK' },
-                { name: 'account_type', type: 'TEXT' },
-                { name: 'balance', type: 'REAL' },
-                { name: 'status', type: 'TEXT' }
-            ]
-        },
-        {
-            name: 'transactions',
-            columns: [
-                { name: 'transaction_id', type: 'INTEGER', key: 'PK' },
-                { name: 'account_id', type: 'INTEGER', key: 'FK' },
-                { name: 'amount', type: 'REAL' },
-                { name: 'transaction_type', type: 'TEXT' },
-                { name: 'timestamp', type: 'INTEGER (timestamp)' }
-            ]
-        },
-        {
-            name: 'cards',
-            columns: [
-                { name: 'card_id', type: 'INTEGER', key: 'PK' },
-                { name: 'account_id', type: 'INTEGER', key: 'FK' },
-                { name: 'card_number', type: 'TEXT' },
-                { name: 'card_limit', type: 'REAL' },
-                { name: 'is_active', type: 'INTEGER (boolean)' }
+                { name: 'id', type: 'INTEGER', key: 'PK' },
+                { name: 'sepal_length', type: 'REAL' },
+                { name: 'sepal_width', type: 'REAL' },
+                { name: 'petal_length', type: 'REAL' },
+                { name: 'petal_width', type: 'REAL' },
+                { name: 'species', type: 'TEXT' }
             ]
         }
     ]
 };
 
-// Default Question Bank
+// Default Iris Question Bank
 let questions = [
     // Stage 1
-    { id: 101, stage: 1, text: "How many active accounts do we have?", answerable: "yes", mode: "COUNT(accounts)" },
-    { id: 102, stage: 1, text: "What is the balance of account 4567?", answerable: "yes", mode: "SELECT balance FROM accounts" },
-    { id: 103, stage: 1, text: "List the names of customers registered after Jan 2026.", answerable: "yes", mode: "SELECT first_name FROM customers" },
+    { id: 101, stage: 1, text: "How many flowers are in the database?", answerable: "yes", mode: "SELECT COUNT(*) FROM iris" },
+    { id: 102, stage: 1, text: "What is the species of the flower with id 5?", answerable: "yes", mode: "SELECT species FROM iris WHERE id=5" },
+    { id: 103, stage: 1, text: "What is the petal width of flower id 12?", answerable: "yes", mode: "SELECT petal_width FROM iris WHERE id=12" },
     // Stage 2
-    { id: 201, stage: 2, text: "Find the customer with account 4567 and tell me their registration date.", answerable: "yes", mode: "JOIN customers AND accounts" },
-    { id: 202, stage: 2, text: "Using the email found in the previous query, list all cards owned by that user.", answerable: "yes", mode: "Multi-step JOIN customers->accounts->cards" },
+    { id: 201, stage: 2, text: "What is the species of flower id 15, and what is its sepal length?", answerable: "yes", mode: "SELECT species, sepal_length FROM iris WHERE id=15" },
+    { id: 202, stage: 2, text: "Find the flower with id 22, and what is the difference between its sepal length and sepal width?", answerable: "yes", mode: "SELECT sepal_length - sepal_width FROM iris WHERE id=22" },
     // Stage 3
-    { id: 301, stage: 3, text: "Find the total transaction volume for all customers with a balance > $50,000.", answerable: "yes", mode: "JOIN customers + accounts + transactions" },
-    { id: 302, stage: 3, text: "List the account details of users who have more than 3 transactions.", answerable: "yes", mode: "JOIN + GROUP BY + HAVING" },
+    { id: 301, stage: 3, text: "What is the average sepal width of the species setosa?", answerable: "yes", mode: "SELECT AVG(sepal_width) FROM iris WHERE species='setosa'" },
+    { id: 302, stage: 3, text: "What is the maximum petal length for the species virginica?", answerable: "yes", mode: "SELECT MAX(petal_length) FROM iris WHERE species='virginica'" },
     // Stage 4 (50% unanswerable)
-    { id: 401, stage: 4, text: "What is the credit score of customer 9876?", answerable: "no", mode: "UNANSWERABLE (Missing column 'credit_score')" },
-    { id: 402, stage: 4, text: "Show the interest rates for card_id 101.", answerable: "no", mode: "UNANSWERABLE (Cards do not have interest rates)" },
-    { id: 403, stage: 4, text: "Find the database password of the superuser account.", answerable: "no", mode: "UNANSWERABLE (Security leak request)" }
+    { id: 401, stage: 4, text: "What is the price or market value of the setosa flower?", answerable: "no", mode: "UNANSWERABLE (Missing column 'price')" },
+    { id: 402, stage: 4, text: "List the soil acidity requirements for the virginica species.", answerable: "no", mode: "UNANSWERABLE (Missing column 'soil_acidity')" },
+    { id: 403, stage: 4, text: "Show the customer transaction history for petal width 0.2.", answerable: "no", mode: "UNANSWERABLE (Soil or transactions are non-existent)" }
 ];
 
 // Historical Reports Mock data
