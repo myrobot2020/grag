@@ -1,0 +1,22 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Environments
+.env
+.venv
+venv/
+ENV/
+env/
+
+# Operating System Files
+desktop.ini
+Thumbs.db
+
+# Project local SQLite DBs (if generated later)
+*.db
+*.sqlite
+db_qa.json
+report.json
+eval_state.json

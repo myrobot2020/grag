@@ -1,0 +1,607 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>General RAG Bot - Dashboard Lab</title>
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;500;600;700;800&family=Fira+Code:wght@400;500&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="app-container">
+        <!-- Sidebar Navigation -->
+        <aside class="sidebar">
+            <div class="logo-area">
+                <div class="logo-glow"></div>
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M12 2L2 7L12 12L22 7L12 2Z" stroke="#a855f7" stroke-width="2" stroke-linejoin="round"/>
+                    <path d="M2 17L12 22L22 17" stroke="#a855f7" stroke-width="2" stroke-linejoin="round"/>
+                    <path d="M2 12L12 17L22 12" stroke="#a855f7" stroke-width="2" stroke-linejoin="round"/>
+                </svg>
+                <span>RAG LOOP LAB</span>
+            </div>
+            
+            <nav class="nav-menu">
+                <button class="nav-btn active" data-tab="dashboard">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="9"/><rect x="14" y="3" width="7" height="5"/><rect x="14" y="12" width="7" height="9"/><rect x="3" y="16" width="7" height="5"/></svg>
+                    Overview
+                </button>
+                <button class="nav-btn" data-tab="database">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M3 5V19C3 20.66 7.03 22 12 22C16.97 22 21 20.66 21 19V5"/><path d="M3 12C3 13.66 7.03 15 12 15C16.97 15 21 13.66 21 12"/></svg>
+                    DB Credentials
+                </button>
+                <button class="nav-btn" data-tab="eval-questions">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22C17.5228 22 22 17.5228 22 12C22 6.47715 17.5228 2 12 2C6.47715 2 2 6.47715 2 12C2 17.5228 6.47715 22 12 22Z"/><path d="M9.09 9C9.3251 8.2725 9.8647 7.6961 10.569 7.3902C11.2734 7.0844 12.073 7.0844 12.7774 7.3902C13.4817 7.6961 14.0213 8.2725 14.256 9C14.256 11 11.256 12 11.256 12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+                    Eval Questions
+                </button>
+                <button class="nav-btn" data-tab="judge">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22C17.5228 22 22 17.5228 22 12C22 6.47715 17.5228 2 12 2C6.47715 2 2 6.47715 2 12C2 17.5228 6.47715 22 12 22Z"/><path d="M12 8V16"/><path d="M8 12H16"/></svg>
+                    Judge Settings
+                </button>
+                <button class="nav-btn" data-tab="code">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg>
+                    Agent Code
+                </button>
+                <button class="nav-btn" data-tab="reports">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6A2 2 0 0 0 4 4V20A2 2 0 0 0 6 22H18A2 2 0 0 0 20 20V8L14 2Z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
+                    Reports & Logs
+                </button>
+                <button class="nav-btn" data-tab="visualizer">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67"/></svg>
+                    Loop Visualizer
+                </button>
+            </nav>
+            
+            <div class="sidebar-footer">
+                <div class="connection-status">
+                    <div class="status-indicator connected"></div>
+                    <span id="current-db-label">sqlite:///rag_database.db</span>
+                </div>
+            </div>
+        </aside>
+
+        <!-- Main Content Area -->
+        <main class="main-content">
+            <!-- Header bar with global lab controls -->
+            <header class="top-bar">
+                <div class="bar-title">
+                    <h1 id="tab-title">Overview Dashboard</h1>
+                    <p id="tab-subtitle">Real-time status of the general RAG bot evaluation loop</p>
+                </div>
+                <div class="simulation-controls">
+                    <button class="btn btn-secondary btn-icon" id="btn-step" title="Run single step of active stage">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="5 4 15 12 5 20 5 4"/><line x1="19" y1="5" x2="19" y2="19"/></svg>
+                        Step
+                    </button>
+                    <button class="btn btn-primary btn-icon" id="btn-play-sim">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+                        <span id="play-text">Start Loop Simulation</span>
+                    </button>
+                    <button class="btn btn-danger btn-icon" id="btn-reset">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67"/></svg>
+                        Reset Agent
+                    </button>
+                </div>
+            </header>
+
+            <!-- Tab Content Containers -->
+            <div class="content-body">
+                
+                <!-- TAB: DASHBOARD -->
+                <section class="tab-pane active" id="pane-dashboard">
+                    <div class="stats-row">
+                        <div class="stat-card">
+                            <span class="stat-label">Active Database Stage</span>
+                            <span class="stat-value text-purple" id="stat-active-stage">Stage 1</span>
+                            <span class="stat-desc">Simple functional checks</span>
+                        </div>
+                        <div class="stat-card">
+                            <span class="stat-label">Current Threshold</span>
+                            <span class="stat-value text-green" id="stat-threshold">70%</span>
+                            <span class="stat-desc">Target score to pass stage</span>
+                        </div>
+                        <div class="stat-card">
+                            <span class="stat-label">Last Run Score</span>
+                            <span class="stat-value text-blue" id="stat-last-score">--</span>
+                            <span class="stat-desc" id="stat-last-score-desc">No execution yet</span>
+                        </div>
+                        <div class="stat-card">
+                            <span class="stat-label">Total Mutations</span>
+                            <span class="stat-value text-orange" id="stat-mutations">0</span>
+                            <span class="stat-desc">Times schema was randomized</span>
+                        </div>
+                    </div>
+
+                    <div class="grid-2col">
+                        <!-- Left Panel: Evaluation Timeline -->
+                        <div class="card glass">
+                            <div class="card-header">
+                                <h2>Evolution Stages Progress</h2>
+                                <span class="badge badge-purple">LIVE TRACKING</span>
+                            </div>
+                            <div class="timeline-container">
+                                <div class="timeline-step" id="step-0">
+                                    <div class="step-num">0</div>
+                                    <div class="step-details">
+                                        <h3>Stage 0: Pipeline Connectivity Check</h3>
+                                        <p>Checks basic SQLite connection and key validation. Failure results in immediate process halt.</p>
+                                        <div class="step-progress-wrapper"><div class="step-progress-bar" style="width: 0%"></div></div>
+                                    </div>
+                                    <div class="step-status text-gray">Pending</div>
+                                </div>
+                                <div class="timeline-step" id="step-1">
+                                    <div class="step-num">1</div>
+                                    <div class="step-details">
+                                        <h3>Stage 1: Simple Database Queries</h3>
+                                        <p>Executes single-table fetches. Tests simple SELECT and WHERE conditions.</p>
+                                        <div class="step-progress-wrapper"><div class="step-progress-bar" style="width: 0%"></div></div>
+                                    </div>
+                                    <div class="step-status text-gray">Pending</div>
+                                </div>
+                                <div class="timeline-step" id="step-2">
+                                    <div class="step-num">2</div>
+                                    <div class="step-details">
+                                        <h3>Stage 2: Compound Contextual Queries</h3>
+                                        <p>Combines current questions with previous answers. Tests history context maintenance.</p>
+                                        <div class="step-progress-wrapper"><div class="step-progress-bar" style="width: 0%"></div></div>
+                                    </div>
+                                    <div class="step-status text-gray">Pending</div>
+                                </div>
+                                <div class="timeline-step" id="step-3">
+                                    <div class="step-num">3</div>
+                                    <div class="step-details">
+                                        <h3>Stage 3: Complex Multi-Join queries</h3>
+                                        <p>Checks complex reasoning and multi-table mapping using relational keys.</p>
+                                        <div class="step-progress-wrapper"><div class="step-progress-bar" style="width: 0%"></div></div>
+                                    </div>
+                                    <div class="step-status text-gray">Pending</div>
+                                </div>
+                                <div class="timeline-step" id="step-4">
+                                    <div class="step-num">4</div>
+                                    <div class="step-details">
+                                        <h3>Stage 4: Ambiguous & Trick Questions</h3>
+                                        <p>50% trick questions targeting missing tables or private keys. Must answer "UNANSWERABLE" without hallucinating.</p>
+                                        <div class="step-progress-wrapper"><div class="step-progress-bar" style="width: 0%"></div></div>
+                                    </div>
+                                    <div class="step-status text-gray">Pending</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Right Panel: Active Run Trace / Activity Stream -->
+                        <div class="card glass">
+                            <div class="card-header">
+                                <h2>Real-time Simulation Trace</h2>
+                                <button class="btn btn-sm btn-secondary" onclick="clearLogs()">Clear</button>
+                            </div>
+                            <div class="log-console" id="dashboard-console">
+                                <div class="console-line system">[SYSTEM] Ready. Select options and press 'Start Loop Simulation' to observe backtracking and model feedback.</div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- TAB: DATABASE CONFIG -->
+                <section class="tab-pane" id="pane-database">
+                    <div class="grid-2col">
+                        <!-- Left Panel: DB Settings -->
+                        <div class="card glass">
+                            <div class="card-header">
+                                <h2>Configure Target Database</h2>
+                            </div>
+                            <form id="db-config-form" class="form-container" onsubmit="event.preventDefault(); connectDatabase();">
+                                <div class="form-group">
+                                    <label for="db-connection-string">Database URI / SQLite Connection String</label>
+                                    <input type="text" id="db-connection-string" value="sqlite:///rag_database.db" placeholder="sqlite:///path/to/database.db">
+                                    <small>Provide the path to your SQLite database file.</small>
+                                </div>
+                                <div class="form-group">
+                                    <label for="db-schema-preview">Introspective Database Driver</label>
+                                    <select id="db-driver-select">
+                                        <option value="sqlite">SQLite (Read-Only Mode)</option>
+                                        <option value="postgresql" disabled>PostgreSQL (Read-Only) - Coming soon</option>
+                                    </select>
+                                </div>
+                                <div class="form-group inline-checkbox">
+                                    <input type="checkbox" id="db-read-only" checked disabled>
+                                    <label for="db-read-only">Enforce Read-Only Connection (Prevents destructive agent queries)</label>
+                                </div>
+                                <div class="btn-row">
+                                    <button class="btn btn-primary" type="submit">Verify & Connect</button>
+                                    <button class="btn btn-secondary" type="button" id="btn-mutate-db">Simulate Mutate Schema</button>
+                                </div>
+                            </form>
+                            
+                            <div class="alert alert-info mt-2">
+                                <h3>About Schema Mutation:</h3>
+                                <p>Clicking <strong>Simulate Mutate Schema</strong> randomizes table structures (renaming fields and shifting types) while generating closely-related mock data, forcing the agent to adapt.</p>
+                            </div>
+                        </div>
+
+                        <!-- Right Panel: Schema Visualizer -->
+                        <div class="card glass">
+                            <div class="card-header">
+                                <h2>Active Database Schema Map</h2>
+                                <span class="badge badge-green" id="schema-status-badge">Finance Domain</span>
+                            </div>
+                            <div class="schema-visualizer-container" id="schema-visualizer">
+                                <!-- Tables dynamically loaded by JS -->
+                                <div class="empty-state">
+                                    <p>Connect database to visual schema map.</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- TAB: EVAL QUESTIONS -->
+                <section class="tab-pane" id="pane-eval-questions">
+                    <div class="card glass mb-2">
+                        <div class="card-header">
+                            <h2>Add Custom Evaluation Question</h2>
+                        </div>
+                        <form id="add-question-form" class="form-container inline-form" onsubmit="event.preventDefault(); addCustomQuestion();">
+                            <div class="form-group">
+                                <label for="new-q-text">Question String</label>
+                                <input type="text" id="new-q-text" placeholder="e.g. Find the card with the highest spending limit" required>
+                            </div>
+                            <div class="form-group" style="max-width: 150px;">
+                                <label for="new-q-stage">Target Stage</label>
+                                <select id="new-q-stage">
+                                    <option value="1">Stage 1: Simple</option>
+                                    <option value="2">Stage 2: Compound</option>
+                                    <option value="3">Stage 3: Join</option>
+                                    <option value="4">Stage 4: Trick/Refusal</option>
+                                </select>
+                            </div>
+                            <div class="form-group" style="max-width: 150px;">
+                                <label for="new-q-answerable">Type</label>
+                                <select id="new-q-answerable">
+                                    <option value="yes">Answerable</option>
+                                    <option value="no">Unanswerable</option>
+                                </select>
+                            </div>
+                            <button class="btn btn-primary" type="submit" style="margin-top: 24px;">Add Question</button>
+                        </form>
+                    </div>
+
+                    <div class="card glass">
+                        <div class="card-header">
+                            <h2>Evaluation Question Suite</h2>
+                            <button class="btn btn-sm btn-secondary" onclick="resetQuestions()">Reload Default Dataset</button>
+                        </div>
+                        <div class="questions-table-wrapper">
+                            <table class="data-table">
+                                <thead>
+                                    <tr>
+                                        <th>ID</th>
+                                        <th>Stage</th>
+                                        <th>Question</th>
+                                        <th>Type</th>
+                                        <th>Expected Answer Mode</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="questions-table-body">
+                                    <!-- Dynamic rows from JS -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- TAB: JUDGE SETTINGS -->
+                <section class="tab-pane" id="pane-judge">
+                    <div class="grid-2col">
+                        <!-- Left Panel: Judge Options -->
+                        <div class="card glass">
+                            <div class="card-header">
+                                <h2>Feedback LLM (Judge) Selection</h2>
+                            </div>
+                            <form id="judge-config-form" class="form-container" onsubmit="event.preventDefault(); saveJudgeConfig();">
+                                <div class="form-group">
+                                    <label for="judge-model-select">Feedback Model Preference</label>
+                                    <select id="judge-model-select">
+                                        <option value="deepseek-r1">DeepSeek-R1 (High Reasoning / Thought Output)</option>
+                                        <option value="gemini-1.5-pro" selected>Gemini 1.5 Pro / 2.5 Pro (Nvidia NIM API)</option>
+                                        <option value="grok-2">Grok 2 (X.AI API)</option>
+                                        <option value="gpt-4o">GPT-4o (OpenAI API)</option>
+                                    </select>
+                                    <small>This model evaluates report.json and outputs suggestions for code changes in agent.py.</small>
+                                </div>
+                                <div class="form-group">
+                                    <label for="judge-api-url">Base API Endpoint</label>
+                                    <input type="text" id="judge-api-url" value="https://integrate.api.nvidia.com/v1" placeholder="https://api.openai.com/v1">
+                                </div>
+                                <div class="form-group">
+                                    <label for="judge-temperature">Judge Temperature</label>
+                                    <div class="range-wrapper">
+                                        <input type="range" id="judge-temperature" min="0" max="1" step="0.1" value="0.0">
+                                        <span id="judge-temp-val">0.0</span>
+                                    </div>
+                                    <small>Temperature is forced to 0.0 for deterministic evaluation scores, but feedback model can be slightly higher.</small>
+                                </div>
+                                <div class="form-group">
+                                    <label for="eval-frequency">Feedback Evaluation Trigger Frequency</label>
+                                    <select id="eval-frequency">
+                                        <option value="5">Every 5 Evals (5 Rounds of 5 Questions)</option>
+                                        <option value="1">Every Single Eval Run</option>
+                                        <option value="10">Every 10 Evals</option>
+                                    </select>
+                                </div>
+                                <button class="btn btn-primary" type="submit">Save Judge Settings</button>
+                            </form>
+                        </div>
+
+                        <!-- Right Panel: System Prompt for Judge -->
+                        <div class="card glass">
+                            <div class="card-header">
+                                <h2>Feedback System Instructions</h2>
+                            </div>
+                            <div class="form-container h-full">
+                                <div class="form-group flex-grow">
+                                    <label for="judge-system-prompt">Prompt Given to the Feedback Judge Model</label>
+                                    <textarea id="judge-system-prompt" rows="12" class="code-font flex-grow-textarea">You are analyzing the performance reports of a LangChain database agent.
+Review the SQL queries generated, check the reasoning steps, and identify:
+1. Did the agent hallucinate database tables/columns?
+2. Did it try to answer questions marked as UNANSWERABLE?
+3. Did it experience SQL execution syntax errors?
+
+Generate a markdown report containing:
+- Summary of errors.
+- Actionable prompt engineering edits for agent.py's internal instructions.
+- Ensure recommendations do NOT introduce regressions on previously passing stages.</textarea>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- TAB: CODE VIEWER -->
+                <section class="tab-pane" id="pane-code">
+                    <div class="card glass flex-column-card">
+                        <div class="card-header">
+                            <h2>agent.py Code Editor</h2>
+                            <div class="header-buttons">
+                                <span class="badge badge-purple" id="code-version-badge">Version 1.0.0 (Baseline)</span>
+                                <button class="btn btn-sm btn-primary" id="btn-save-code" onclick="saveAgentCodeMock()">Save & Deploy Code</button>
+                            </div>
+                        </div>
+                        <div class="code-container">
+                            <div class="code-tabs">
+                                <button class="code-tab-btn active" data-file="agent">agent.py</button>
+                                <button class="code-tab-btn" data-file="prompts">prompts.json</button>
+                            </div>
+                            <div class="editor-area">
+                                <textarea id="code-editor" class="code-font" spellcheck="false"># agent.py - Dynamic LangChain RAG SQL Bot
+import os
+import sqlite3
+from langchain_community.utilities import SQLDatabase
+from langchain_community.agent_toolkits import create_sql_agent
+from langchain_openai import ChatOpenAI
+
+def get_agent(db_uri):
+    # Initialize SQL Database dynamically
+    db = SQLDatabase.from_uri(db_uri, sample_rows_in_table_info=2)
+    
+    # Setup model using DeepSeek from Desktop keys
+    llm = ChatOpenAI(
+        model="deepseek-ai/deepseek-v4-flash",
+        api_key=os.environ.get("DEEPSEEK_API_KEY", "nvapi-..."),
+        base_url="https://integrate.api.nvidia.com/v1",
+        temperature=0.0
+    )
+    
+    # Define agent prompt rules
+    prompt_suffix = """
+    You must always query the schema first before generating questions.
+    If you are asked a question about table names or columns that do not exist,
+    or if you cannot answer the query with facts, you must answer exactly "UNANSWERABLE".
+    Never make up rows or columns.
+    """
+    
+    agent_executor = create_sql_agent(
+        llm=llm,
+        db=db,
+        verbose=True,
+        handle_parsing_errors=True,
+        prompt_suffix=prompt_suffix
+    )
+    
+    return agent_executor</textarea>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- TAB: REPORTS -->
+                <section class="tab-pane" id="pane-reports">
+                    <div class="grid-2col">
+                        <!-- Left Panel: Evaluation Runs History -->
+                        <div class="card glass">
+                            <div class="card-header">
+                                <h2>Historical Reports Log</h2>
+                            </div>
+                            <div class="reports-list-wrapper">
+                                <div class="reports-list" id="reports-list-container">
+                                    <!-- Dynamic report summaries -->
+                                    <div class="empty-state">
+                                        <p>Run evaluations to compile reports.</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Right Panel: Report Details -->
+                        <div class="card glass">
+                            <div class="card-header">
+                                <h2>Detailed Run Analysis</h2>
+                                <span class="badge badge-purple" id="report-version-tag">Report --</span>
+                            </div>
+                            <div class="report-detail-body" id="report-detail-container">
+                                <div class="empty-state">
+                                    <p>Select a report from the log to view details.</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- TAB: LOOP VISUALIZER -->
+                <section class="tab-pane" id="pane-visualizer">
+                    <div class="grid-layout-visualizer">
+                        <!-- Visualizer Area -->
+                        <div class="card glass visualizer-card">
+                            <div class="card-header">
+                                <h2>Interactive RAG Loop Diagram</h2>
+                                <div class="legend">
+                                    <span class="legend-dot active"></span> Active Node
+                                    <span class="legend-dot completed"></span> Completed Node
+                                </div>
+                            </div>
+                            <div class="diagram-canvas">
+                                <!-- Flowchart SVG containing elements and connections -->
+                                <svg width="100%" height="100%" viewBox="0 0 800 500" class="loop-svg" xmlns="http://www.w3.org/2000/svg">
+                                    <defs>
+                                        <marker id="arrow" viewBox="0 0 10 10" refX="6" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+                                            <path d="M 0 2 L 8 5 L 0 8 z" fill="#8b5cf6" />
+                                        </marker>
+                                        <marker id="arrow-back" viewBox="0 0 10 10" refX="6" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+                                            <path d="M 0 2 L 8 5 L 0 8 z" fill="#ef4444" />
+                                        </marker>
+                                    </defs>
+                                    <!-- Connectors -->
+                                    <path id="path-connect" d="M 120 180 L 190 180" class="flow-line" marker-end="url(#arrow)" />
+                                    <path id="path-qa" d="M 310 180 L 370 180" class="flow-line" marker-end="url(#arrow)" />
+                                    <path id="path-eval" d="M 490 180 L 560 180" class="flow-line" marker-end="url(#arrow)" />
+                                    
+                                    <path id="path-eval-pass" d="M 620 220 L 620 320" class="flow-line" marker-end="url(#arrow)" />
+                                    <path id="path-eval-fail" d="M 680 180 C 720 180, 720 100, 620 100" class="flow-line fail-line" marker-end="url(#arrow-back)" style="display: none;" />
+                                    <path id="path-eval-backtrack" d="M 620 140 L 620 100" class="flow-line backtrack-line" marker-end="url(#arrow-back)" style="display: none;" />
+
+                                    <path id="path-report" d="M 560 360 L 490 360" class="flow-line" marker-end="url(#arrow)" />
+                                    <path id="path-patch" d="M 370 360 L 310 360" class="flow-line" marker-end="url(#arrow)" />
+                                    <path id="path-mutate" d="M 190 360 L 120 360" class="flow-line" marker-end="url(#arrow)" />
+                                    <path id="path-loopback" d="M 120 320 L 120 220" class="flow-line" marker-end="url(#arrow)" />
+
+                                    <!-- Nodes -->
+                                    <!-- 1. Connect DB -->
+                                    <g id="node-connect" class="flow-node" transform="translate(40,140)">
+                                        <rect width="160" height="80" rx="8" class="node-rect" />
+                                        <text x="80" y="45" class="node-text">1. Connect DB</text>
+                                    </g>
+                                    
+                                    <!-- 2. Generate QA -->
+                                    <g id="node-qa" class="flow-node" transform="translate(230,140)">
+                                        <rect width="160" height="80" rx="8" class="node-rect" />
+                                        <text x="80" y="45" class="node-text">2. Generate QA</text>
+                                    </g>
+
+                                    <!-- 3. Eval Stage Run -->
+                                    <g id="node-eval" class="flow-node" transform="translate(500,140)">
+                                        <rect width="180" height="80" rx="8" class="node-rect" />
+                                        <text x="90" y="40" class="node-text">3. Run Agent Eval</text>
+                                        <text x="90" y="60" class="node-subtext" id="diag-active-stage">Stage 0</text>
+                                    </g>
+
+                                    <!-- 4. Generate Report -->
+                                    <g id="node-report" class="flow-node" transform="translate(500,320)">
+                                        <rect width="180" height="80" rx="8" class="node-rect" />
+                                        <text x="90" y="45" class="node-text">4. Compile Report</text>
+                                    </g>
+
+                                    <!-- 5. Judge LLM call -->
+                                    <g id="node-judge" class="flow-node" transform="translate(310,320)">
+                                        <rect width="180" height="80" rx="8" class="node-rect" />
+                                        <text x="90" y="45" class="node-text">5. LLM Judge Feedback</text>
+                                    </g>
+
+                                    <!-- 6. Mutate DB -->
+                                    <g id="node-mutate" class="flow-node" transform="translate(40,320)">
+                                        <rect width="160" height="80" rx="8" class="node-rect" />
+                                        <text x="80" y="45" class="node-text">6. Mutate Schema</text>
+                                    </g>
+                                </svg>
+                            </div>
+                        </div>
+
+                        <!-- Right Panel: Live Backtracking / Decision Logs -->
+                        <div class="card glass detail-card">
+                            <div class="card-header">
+                                <h2>Loop State Watcher</h2>
+                            </div>
+                            <div class="state-watcher-body">
+                                <div class="watcher-row">
+                                    <span>Loop Execution State:</span>
+                                    <span class="badge" id="watcher-state">IDLE</span>
+                                </div>
+                                <div class="watcher-row">
+                                    <span>Current Working Stage:</span>
+                                    <strong id="watcher-stage">None</strong>
+                                </div>
+                                <div class="watcher-row">
+                                    <span>Target Score Needed:</span>
+                                    <strong id="watcher-target-score">--</strong>
+                                </div>
+                                <div class="watcher-row">
+                                    <span>Actual Score Obtained:</span>
+                                    <strong id="watcher-actual-score">--</strong>
+                                </div>
+                                <div class="watcher-row">
+                                    <span>Action Status:</span>
+                                    <span id="watcher-action" class="text-orange">Waiting to start...</span>
+                                </div>
+                                
+                                <div class="decision-history-wrapper">
+                                    <h3>Backtracking Decisions Log</h3>
+                                    <div class="decision-history" id="decision-history-log">
+                                        <div class="empty-state">No backtracking events recorded yet.</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+            </div>
+        </main>
+    </div>
+    
+    <!-- Code Editor Dialog / Overlay for Code modifications -->
+    <div class="modal-overlay" id="feedback-modal" style="display: none;">
+        <div class="modal-content glass">
+            <div class="modal-header">
+                <h2>LLM Feedback & Auto-Patch Preview</h2>
+                <button class="close-btn" onclick="closeFeedbackModal()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="feedback-desc alert alert-info">
+                    <strong>LLM Judge Suggestion:</strong>
+                    <p id="modal-feedback-text">Agent failed Stage 4 by trying to answer table columns that do not exist. Suggesting adding strict column checks to prompts.json suffix.</p>
+                </div>
+                
+                <div class="diff-viewer mt-2">
+                    <div class="diff-panel">
+                        <h4>Original prompt_suffix</h4>
+                        <pre class="code-font" id="diff-original">If you are asked a question about table names or columns that do not exist, you must answer "UNANSWERABLE".</pre>
+                    </div>
+                    <div class="diff-panel new-diff">
+                        <h4>Modified prompt_suffix (Applied)</h4>
+                        <pre class="code-font" id="diff-modified">If you are asked a question about table names or columns that do not exist in the inspected schema, or if you find that query returns empty rows for non-existent users, you must return exactly "UNANSWERABLE" and execute no further tools.</pre>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" onclick="closeFeedbackModal()">Dismiss</button>
+                <button class="btn btn-primary" onclick="applyProposedPatch()">Apply Prompt Edits to agent.py</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="app.js"></script>
+</body>
+</html>
